@@ -1,6 +1,6 @@
 require "ostruct"
 
-module Tunnel
+module Schop
   class Config < OpenStruct
 
     def to_yaml(opts={})

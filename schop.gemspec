@@ -1,18 +1,18 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "tunnel/version"
+require "schop/version"
 
 Gem::Specification.new do |s|
-  s.name        = "tunnel"
-  s.version     = Tunnel::VERSION
+  s.name        = "schop"
+  s.version     = Schop::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Ben Marini"]
-  s.email       = ["bmarini@gmail.com"]
-  s.homepage    = "http://github.com/bmarini/tunnel"
+  s.authors     = ["mirakui"]
+  s.email       = ["mirakui@tsuyabu.in"]
+  s.homepage    = "http://github.com/mirakui/schop"
   s.summary     = %q{A ruby cli wrapper to make ssh tunneling a no brainer}
   s.description = %q{A ruby cli wrapper to make ssh tunneling a no brainer}
 
-  s.rubyforge_project = "tunnel"
+  s.rubyforge_project = "schop"
   s.add_dependency "thor", "0.14.3"
   s.add_dependency "highline", "~> 1.6"
 

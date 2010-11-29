@@ -1,3 +1,3 @@
-module Tunnel
+module Schop
   VERSION = "0.0.2"
 end

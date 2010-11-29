@@ -1,10 +1,10 @@
 require "highline"
 require "yaml"
 
-module Tunnel
-  autoload :CLI, "tunnel/cli"
-  autoload :Configfile, "tunnel/configfile"
-  autoload :Config, "tunnel/config"
+module Schop
+  autoload :CLI, "schop/cli"
+  autoload :Configfile, "schop/configfile"
+  autoload :Config, "schop/config"
 
   def self.start(conf)
     puts "Starting #{conf}"

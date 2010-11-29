@@ -1,4 +1,4 @@
-module Tunnel
+module Schop
   class Configfile
     class << self
 
@@ -12,7 +12,7 @@ module Tunnel
         if result = YAML.load_file(configfile)
           result.map { |c| Config.new(c) }
         else
-          puts "Your tunnel config (~/.tunnel) is not valid yaml"
+          puts "Your schop config (~/.schop) is not valid yaml"
         end
       end
 
@@ -32,7 +32,7 @@ module Tunnel
       end
 
       def configfile
-        File.expand_path("~/.tunnel")
+        File.expand_path("~/.schop")
       end
     end
   end

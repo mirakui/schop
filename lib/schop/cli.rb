@@ -1,31 +1,31 @@
 require "thor"
 
-module Tunnel
+module Schop
   class CLI < Thor
 
-    desc "start", "Start a tunnel"
+    desc "start", "Start a schop"
     method_option :verbose, :type => :boolean, :aliases => "-v", :banner => "Enable verbose output"
     def start
       highline = HighLine.new
       highline.choose do |menu|
         menu.choices(*configs) do |choice|
           choice.verbose = options.verbose?
-          Tunnel.start(choice)
+          Schop.start(choice)
         end
       end
     end
 
-    desc "list", "List your tunnel configs"
+    desc "list", "List your schop configs"
     def list
       configs.each_with_index do |c, i|
         puts "#{i+1}. #{c}"
       end
     end
 
-    desc "add", "Add a new tunnel config"
+    desc "add", "Add a new schop config"
     def add
       highline = HighLine.new
-      puts "Adding a new tunnel config"
+      puts "Adding a new schop config"
 
       conf = Config.new
       conf.name        = highline.ask("Name:        ")
@@ -42,7 +42,7 @@ module Tunnel
     def configs
       @configs ||= begin
         c = Configfile.configs
-        c.empty? ? abort("Please add a new config with `tunnel add`") : c
+        c.empty? ? abort("Please add a new config with `schop add`") : c
       end
     end
   end
