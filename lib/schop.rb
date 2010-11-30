@@ -1,5 +1,6 @@
 require "highline"
 require "yaml"
+require "daemons"
 
 module Schop
   autoload :CLI, "schop/cli"
@@ -9,6 +10,7 @@ module Schop
   def self.start(conf)
     puts "Starting #{conf}"
     puts "--> #{conf.ssh_command}"
-    system conf.ssh_command
+    io = IO.popen(conf.ssh_command, "r")
+    puts io.pid
   end
 end

@@ -28,12 +28,11 @@ module Schop
       puts "Adding a new schop config"
 
       conf = Config.new
-      conf.name        = highline.ask("Name:        ")
-      conf.ssh_port    = highline.ask("SSH port:    ") { |q| q.default = "22" }
-      conf.local_port  = highline.ask("Local port:  ") { |q| q.default = "3000" }
-      conf.remote_user = highline.ask("Remote user: ") { |q| q.default = ENV['USER'] }
-      conf.remote_host = highline.ask("Remote host: ")
-      conf.remote_port = highline.ask("Remote port: ")
+      conf.name         = highline.ask("Gateway name: ")
+      conf.gateway_host = highline.ask("Gateway host: ")
+      conf.ssh_port     = highline.ask("SSH port:     ") { |q| q.default = "22" }
+      conf.gateway_user = highline.ask("Gateway user: ") { |q| q.default = ENV['USER'] }
+      conf.dynamic_port = highline.ask("Dynamic port: ") { |q| q.default = "1080" }
 
       Configfile.add(conf)
     end
