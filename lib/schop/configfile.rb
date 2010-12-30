@@ -2,20 +2,22 @@ module Schop
   class Configfile
     class << self
 
-      def configs
-        @configs ||= ( load_from_file || [] )
+      def config
+        @config ||= ( load_from_file || {} )
       end
 
       def load_from_file
         return false unless config_exists?
 
         if result = YAML.load_file(configfile)
-          result.map { |c| Config.new(c) }
+          #result.map { |c| Config.new(c) }
+          result
         else
           puts "Your schop config (~/.schop) is not valid yaml"
         end
       end
 
+=begin
       def add(config)
         configs.push(config)
         save
@@ -26,6 +28,7 @@ module Schop
           f.puts YAML.dump( configs.sort_by { |c| c.name } )
         end
       end
+=end
 
       def config_exists?
         File.exist?(configfile)

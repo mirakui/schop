@@ -1,8 +1,10 @@
 require "thor"
+require "ruby-debug"
 
 module Schop
   class CLI < Thor
 
+=begin
     desc "start", "Start a schop"
     method_option :verbose, :type => :boolean, :aliases => "-v", :banner => "Enable verbose output"
     def start
@@ -14,12 +16,15 @@ module Schop
         end
       end
     end
+=end
+    desc "start [name]", ""
+    def start(name=nil)
+      schopd.start
+    end
 
     desc "stop", ""
     def stop
-      configs.each do |config|
-        config.ssh.kill
-      end
+      schopd.stop
     end
 
     desc "list", "List your schop configs"
@@ -46,14 +51,32 @@ module Schop
 
     desc "test", ""
     def test
-      p Pathname(__FILE__).join("../../../tmp")
+      schopd = Schopd.new(configs.map(&:ssh))
+      schopd.start
+    end
+
+    desc "test2", ""
+    def test2
+      schopd = Schopd.new(configs.map(&:ssh))
+      schopd.stop
     end
 
     protected
-    def configs
-      @configs ||= begin
-        c = Configfile.configs
+    def config
+      @config ||= begin
+        c = Configfile.config
         c.empty? ? abort("Please add a new config with `schop add`") : c
+      end
+    end
+
+    def schopd
+      @schopd = begin
+        s = Schopd.new
+        config["gateways"].each do |name, gateway|
+          ssh = Ssh.new(name, gateway)
+          s.sshs << ssh
+        end
+        s
       end
     end
   end
