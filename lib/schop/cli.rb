@@ -10,8 +10,15 @@ module Schop
       highline.choose do |menu|
         menu.choices(*configs) do |choice|
           choice.verbose = options.verbose?
-          Schop.start(choice)
+          choice.ssh.run
         end
+      end
+    end
+
+    desc "stop", ""
+    def stop
+      configs.each do |config|
+        config.ssh.kill
       end
     end
 
@@ -35,6 +42,11 @@ module Schop
       conf.dynamic_port = highline.ask("Dynamic port: ") { |q| q.default = "1080" }
 
       Configfile.add(conf)
+    end
+
+    desc "test", ""
+    def test
+      p Pathname(__FILE__).join("../../../tmp")
     end
 
     protected

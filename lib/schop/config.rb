@@ -12,6 +12,10 @@ module Schop
       [ name, gateway_host, ssh_port, dynamic_port ]
     end
 
+    def ssh
+      Ssh.new(self)
+    end
+
     def ssh_command
       "ssh -p %s -D %s -nNT %s@%s" %
       [ ssh_port, dynamic_port, gateway_user, gateway_host ]
