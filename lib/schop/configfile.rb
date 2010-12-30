@@ -10,25 +10,11 @@ module Schop
         return false unless config_exists?
 
         if result = YAML.load_file(configfile)
-          #result.map { |c| Config.new(c) }
           result
         else
           puts "Your schop config (~/.schop) is not valid yaml"
         end
       end
-
-=begin
-      def add(config)
-        configs.push(config)
-        save
-      end
-
-      def save
-        File.open(configfile, "w+") do |f|
-          f.puts YAML.dump( configs.sort_by { |c| c.name } )
-        end
-      end
-=end
 
       def config_exists?
         File.exist?(configfile)

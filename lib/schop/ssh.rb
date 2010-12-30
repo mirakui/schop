@@ -16,32 +16,54 @@ module Schop
 
     def start
       if pid.running?
-        say "already running", :red
-        return
+        say "#{@name}: already running", :red
+        return false
+      end
+      unless gateway_alive?
+        say "#{@name}: couldn't reach gateway", :red
+        return false
       end
       say command
       io = IO.popen(command, "r")
       pid.pid = io.pid
+      say "#{@name} pid: #{pid.pid}", :yellow
+      if pid.running?
+        say "#{@name}: started", :green
+        Growl.notify "#{@name}: started"
+        return true
+      else
+        say "#{@name}: couldn't be started", :red
+        Growl.notify "#{@name}: couldn't be started", :red
+        return false
+      end
     end
 
     def stop
       unless pid.exist?
-        say "#{pid.filename} doesn't exist", :red
-        return false
+        say "#{@name}: #{pid.filename} doesn't exist", :red
+        return true
       end
       if pid.running?
         Process.kill("TERM", pid.pid)
       end
+      delete_pid_files
       3.times do |i|
         unless pid.running?
-          say "killed #{pid.pid}", :green
-          delete_pid_files
+          say "#{@name}: killed #{pid.pid}", :green
+          Growl.notify "#{@name}: stopped"
           return true
         end
         sleep 1
       end
-      say "couldn't killed #{pid.pid}", :red
+      say "#{@name}: couldn't killed #{pid.pid}", :red
       return false
+    end
+
+    def restart
+      if stop
+        sleep 1
+        start
+      end
     end
 
     def pid_name
@@ -61,7 +83,7 @@ module Schop
     end
 
     def command
-      @command ||= "ssh -p %s -D %s -nNT %s@%s" %
+      @command ||= "ssh -p %s -D %s -qnNT %s@%s 2>&1 1>/dev/null" %
       [ @config["ssh_port"],
         @config["dynamic_port"],
         @config["gateway_user"],

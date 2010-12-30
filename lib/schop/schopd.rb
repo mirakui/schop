@@ -4,7 +4,7 @@ require "thor/shell"
 module Schop
   class Schopd
     include Thor::Shell
-    WAIT = 10
+    WAIT = 5
     DAEMON_NAME = "schopd"
 
     attr_accessor :sshs
@@ -14,9 +14,12 @@ module Schop
     end
 
     def start
+      if app.pid.running?
+        say "#{DAEMON_NAME}: already running", :red
+        return
+      end
       @sshs.each do |ssh|
         ssh.start
-        say "started: #{ssh.name}", :green
       end
       group.start_all
     end
@@ -25,11 +28,9 @@ module Schop
       group.stop_all
       @sshs.each do |ssh|
         ssh.stop
-        say "stopped: #{ssh.name}", :green
       end
     end
 
-    private
     def app
       group.applications.first
     end
@@ -37,17 +38,20 @@ module Schop
     def group
       @group ||= begin
         grp = Daemons::ApplicationGroup.new(DAEMON_NAME, daemon_options)
-        app = grp.new_application(daemon_options)
+        grp.setup
+        grp.new_application(daemon_options) if grp.applications.empty?
         grp
       end
     end
 
+    private
     def check
       @sshs.each do |ssh|
-        unless ssh.pid.running?
-          say "#{ssh.name}: dead", :red
+        unless ssh.pid.running? && ssh.gateway_alive?
+          say "#{ssh.name}: dying", :red
+          ssh.restart
         else
-          say "#{ssh.name}: alive", :green
+          #say "#{ssh.name}: alive", :green
         end
       end
     end

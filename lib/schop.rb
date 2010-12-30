@@ -10,5 +10,6 @@ module Schop
   autoload :Config, "schop/config"
   autoload :Ssh, "schop/ssh"
   autoload :Schopd, "schop/schopd"
+  autoload :Growl, "schop/growl"
   PID_DIR = Pathname("/tmp")
 end
