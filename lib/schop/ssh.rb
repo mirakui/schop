@@ -7,7 +7,7 @@ module Schop
   class Ssh
     include Thor::Shell
     PID_NAME_PREFIX = "schop-ssh-"
-    ALIVE_TIMEOUT = 3
+    ALIVE_TIMEOUT = 5
 
     attr_reader :name, :config
 
@@ -92,7 +92,7 @@ module Schop
       say "#{@name}: 1"
       return false if !@io || @io.closed?
       say "#{@name}: 2"
-      msg = rand(10000).to_s
+      msg = "hello"
       received = nil
       timeout(ALIVE_TIMEOUT) do
         say "#{@name}: 3"
