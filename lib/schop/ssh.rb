@@ -1,11 +1,13 @@
 require "thor/actions"
 require "daemons/pidfile"
 require "pathname"
+require "timeout"
 
 module Schop
   class Ssh
     include Thor::Shell
     PID_NAME_PREFIX = "schop-ssh-"
+    ALIVE_TIMEOUT = 3
 
     attr_reader :name, :config
 
@@ -19,41 +21,37 @@ module Schop
         say "#{@name}: already running", :red
         return false
       end
-      unless gateway_alive?
-        say "#{@name}: couldn't reach gateway", :red
-        return false
-      end
       say command
-      io = IO.popen(command, "r")
-      pid.pid = io.pid
-      say "#{@name} pid: #{pid.pid}", :yellow
-      if pid.running?
+      @io = IO.popen(command, "r+")
+      pid.pid = @io.pid
+      say "#{@name}: pid=#{pid.pid}", :yellow
+      if gateway_alive? && pid.running?
         say "#{@name}: started", :green
         Growl.notify "#{@name}: started"
         return true
       else
-        say "#{@name}: couldn't be started", :red
-        Growl.notify "#{@name}: couldn't be started", :red
+        say "#{@name}: could not be started", :red
         return false
       end
     end
 
     def stop
       unless pid.exist?
-        say "#{@name}: #{pid.filename} doesn't exist", :red
+        say "#{@name}: #{pid.filename} does not exist", :red
         return true
       end
       if pid.running?
+        say "#{name}: #{pid.pid} running"
         Process.kill("TERM", pid.pid)
       end
       delete_pid_files
-      3.times do |i|
+      1.times do |i|
         unless pid.running?
           say "#{@name}: killed #{pid.pid}", :green
           Growl.notify "#{@name}: stopped"
           return true
         end
-        sleep 1
+        #sleep 1
       end
       say "#{@name}: couldn't killed #{pid.pid}", :red
       return false
@@ -83,7 +81,7 @@ module Schop
     end
 
     def command
-      @command ||= "ssh -p %s -D %s -qnNT %s@%s 2>&1 1>/dev/null" %
+      @command ||= "ssh -p %s -D %s -T %s@%s" %
       [ @config["ssh_port"],
         @config["dynamic_port"],
         @config["gateway_user"],
@@ -91,13 +89,34 @@ module Schop
     end
 
     def gateway_alive?
-      cmd = "ssh -p %s %s@%s '%s' 2>&1" %
-      [ @config["ssh_port"],
-        @config["gateway_user"],
-        @config["gateway_host"],
-        "echo hello" ]
-      result = `#{cmd}`.chomp
-      result == "hello"
+      say "#{@name}: 1"
+      return false if !@io || @io.closed?
+      say "#{@name}: 2"
+      msg = rand(10000).to_s
+      received = nil
+      timeout(ALIVE_TIMEOUT) do
+        say "#{@name}: 3"
+        @io.puts "echo #{msg}"
+        say "#{@name}: 4"
+        @io.flush
+        received = @io.gets
+        say "#{@name}: lines=#{received.inspect}"
+        say "#{@name}: 5"
+        received.chomp! if received
+      end
+      say "#{@name}: 6"
+      alive = received == msg
+      say "#{@name}: alive=#{alive}(#{msg},#{received})"
+      alive
+    rescue TimeoutError
+      say "#{@name}: 7"
+      say "#{@name}: timeout", :red
+      false
+    rescue Errno::EPIPE
+      say "#{@name}: 8"
+      @io.close
+      say "#{@name}: pipe error", :red
+      false
     end
   end
 end

@@ -18,9 +18,6 @@ module Schop
         say "#{DAEMON_NAME}: already running", :red
         return
       end
-      @sshs.each do |ssh|
-        ssh.start
-      end
       group.start_all
     end
 
@@ -47,11 +44,12 @@ module Schop
     private
     def check
       @sshs.each do |ssh|
+        say "#{ssh.name}: running:#{ssh.pid.running?} alive:#{ssh.gateway_alive?}", :yellow
         unless ssh.pid.running? && ssh.gateway_alive?
           say "#{ssh.name}: dying", :red
           ssh.restart
         else
-          #say "#{ssh.name}: alive", :green
+          say "#{ssh.name}: alive", :green
         end
       end
     end
