@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "schop"
   s.add_dependency "thor", "0.14.3"
   s.add_dependency "highline", "~> 1.6"
+  s.add_dependency "daemons", "~> 1.1.0"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

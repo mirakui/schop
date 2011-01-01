@@ -1,11 +1,10 @@
 require "thor"
-require "ruby-debug"
 
 module Schop
   class CLI < Thor
 
     desc "start", "Start schopd and sshs"
-    def start()
+    def start
       schopd.start
     end
 
@@ -16,7 +15,6 @@ module Schop
 
     desc "status", "Show daemons' status"
     def status
-      #say_status schopd.app.pid.running?, "hoge" 
       print_table [
         ["schopd", schopd.app.pid.running? ? "running" : "not running"],
         *schopd.sshs.map{|ssh| ["(ssh)#{ssh.name}", "#{ssh.pid.running? ? "running" : "not running"}"]}
