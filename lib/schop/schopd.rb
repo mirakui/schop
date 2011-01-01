@@ -11,6 +11,7 @@ module Schop
  
     def initialize(sshs=[])
       @sshs = sshs
+      @monitor_threads = []
     end
 
     def start
@@ -42,22 +43,28 @@ module Schop
     end
 
     private
-    def check
-      @sshs.each do |ssh|
-        say "#{ssh.name}: running:#{ssh.pid.running?} alive:#{ssh.gateway_alive?}", :yellow
-        unless ssh.pid.running? && ssh.gateway_alive?
-          say "#{ssh.name}: dying", :red
-          ssh.restart
-        else
-          say "#{ssh.name}: alive", :green
-        end
+    def check(ssh)
+      say "#{ssh.name}: running:#{ssh.pid.running?} alive:#{ssh.gateway_alive?}", :yellow
+      unless ssh.pid.running? && ssh.gateway_alive?
+        say "#{ssh.name}: dying", :red
+        ssh.restart
+      else
+        say "#{ssh.name}: alive", :green
       end
     end
 
     def run
-      loop do
-        check
-        sleep WAIT
+      @monitor_threads = @sshs.map do |ssh|
+        Thread.new do
+          loop do
+            check(ssh)
+            Thread.pass
+            sleep WAIT
+          end
+        end
+      end
+      @monitor_threads.each do |th|
+        th.join
       end
     end
 

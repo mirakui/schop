@@ -48,7 +48,6 @@ module Schop
       1.times do |i|
         unless pid.running?
           say "#{@name}: killed #{pid.pid}", :green
-          Growl.notify "#{@name}: stopped"
           return true
         end
         #sleep 1
@@ -89,31 +88,22 @@ module Schop
     end
 
     def gateway_alive?
-      say "#{@name}: 1"
       return false if !@io || @io.closed?
-      say "#{@name}: 2"
       msg = "hello"
       received = nil
       timeout(ALIVE_TIMEOUT) do
-        say "#{@name}: 3"
         @io.puts "echo #{msg}"
-        say "#{@name}: 4"
         @io.flush
         received = @io.gets
-        say "#{@name}: lines=#{received.inspect}"
-        say "#{@name}: 5"
         received.chomp! if received
       end
-      say "#{@name}: 6"
       alive = received == msg
-      say "#{@name}: alive=#{alive}(#{msg},#{received})"
       alive
     rescue TimeoutError
-      say "#{@name}: 7"
       say "#{@name}: timeout", :red
+      Growl.notify "#{@name}: timeout"
       false
     rescue Errno::EPIPE
-      say "#{@name}: 8"
       @io.close
       say "#{@name}: pipe error", :red
       false
