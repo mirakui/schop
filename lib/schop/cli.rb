@@ -25,7 +25,7 @@ module Schop
     def config
       @config ||= begin
         c = Configfile.config
-        c.empty? ? abort("Please add a new config with `schop add`") : c
+        c.empty? ? abort("Please put ~/.schop") : c
       end
     end
 

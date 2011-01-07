@@ -80,9 +80,10 @@ module Schop
     end
 
     def command
-      @command ||= "ssh -p %s -D %s -T %s@%s" %
+      @command ||= "ssh -p %s -D %s %s -T %s@%s" %
       [ @config["ssh_port"],
         @config["dynamic_port"],
+        @config["local_ports"] ? @config["local_ports"].map{|l|"-L #{l}"}.join(" ") : "",
         @config["gateway_user"],
         @config["gateway_host"] ]
     end
